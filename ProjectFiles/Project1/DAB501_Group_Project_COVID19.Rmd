@@ -1,0 +1,174 @@
+---
+title: "Group Project - COVID-19 Data"
+output: html_notebook
+---
+## Declaration: 
+The team has worked with honesty and Integrity on the project and take full responsibility of the project work. The work is completed solely by the team members and all 4 members have worked together to complete the work.  
+
+## Team member's names:
+1.	Suhail Riyaz Ahmed :- 789949\n
+2.	Amit Sharma :- 794488\n
+3.	Dhruvalbhai Patel :- 785489\n
+4.	Luis Palacios Melendez :- 802103\n
+
+## Team's Contributions 
+
+1. Each of the four team members came up with their own Data sets (as part of Assignment 2) and put those forward sets to discussion, after due discussion a single data set (COVID -19 Deaths in USA) was selected to create Plots for the project.
+2. Team discussed the type of graphs we know (learned in class), what can be implemented on data? what is each one of us comfortable with?. 
+3. Each team player selected 2 Plots each (from a total of 8) and started working on the skeleton code for each the same, this activity involved studying the data, selecting the plot, variables and creation of basic code. 
+4. Team meetings were conducted to collect the completed work and collate the plots/graphs into one notebook, a common theme was also provided to all the graphs like labeling, headers, names, variable trimming etc.
+5. Once graphs were collated together other sections of the notebook were completed in a common team meetings. comments, documentation of the code etc. was also added.
+6. 4 questions - 4 members theme was again followed to create skeleton answers - then in a team meeting we got together to discuss and put them in the notebook. 
+
+## The versions of R and Rstudio used:
+1. R Version: R version 4.1.2 (2021-11-01), nickname: Bird Hippie\n   
+2. RStudio 2021.09.2+382 "Ghost Orchid" Release for Windows\n
+
+## List of R packages used and their versions:
+1. tidyverse -  tidyverse 1.3.1\n
+2. gridExtra  \n
+
+## Documentation of the data sets:
+1. Owner of the data: National Center for Health Statistics\n
+2. Link: https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-by-Week-Ending-D/r8kw-7aab
+3. Details:
+The above Data set is collection of weekly data in all states in  USA for the number of deaths happened due to COVID -19 , Influenza and Pneumonia. All the deaths are captured in different columns and %age data with corresponding with same month last year is also captured. The purpose of the data is to make trend analysis of the deaths over time (yearly, monthly, weekly) along with data on each state level. Data at state level helps to drill the data to identify the states which should be taken more care in the coming days (as per the numbers). Deaths involving corona virus disease 2019 (COVID-19), pneumonia, and influenza reported to National Center for Health Statistics by week ending date and by state. This Data set delivers the most complete and accurate picture of lives lost to COVID-19. They are based on death certificates, which are the most reliable source of data and contain information not available anywhere else.
+
+## R code and Plots surrounded by well-written explanatory text
+
+IMPORTANT: Pull and load Covid data before u start working on the Plots 
+```{r}
+library(tidyverse)
+library(gridExtra)
+```
+
+### Sampling and having a glimpse at the data set
+```{r}
+glimpse(covid)
+```
+
+### Extracting smaller data sets and creating variables for use in plots
+1. Variable 1 - creating a new Data set usadata - for 3 years and grouped by months
+```{r}
+usadata<-covid %>% filter(State=="United States" & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Month")
+```
+2. Variable 2 - creating a new Data set usawest - for 3 western states for 3 years and grouped by months
+```{r}
+usawest <- covid %>% filter((State=="California" | State=="Oregon" | State=="Washington")  & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Month")
+```
+3. Variable 3 - creating a new Data set usalakes - for states thats are around the Great Lakes this data is grouped by year
+```{r}
+usalakes <- covid %>% filter((State=="Illinois" | State=="Wisconsin" | State=="Indiana"| State=="New York"| State=="Ohio"| State=="Michigan"| State=="Pennsylvania")  & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Year")
+```
+4. Variable 4 - grouping the USA data just omitting the summation at the end
+```{r}
+usaallentries <- covid %>% filter( (Year ==2020 | Year == 2021 | Year ==2022) & Group != "By Total")
+```
+
+### Q1(a): Single continous variable -1 (Total.Deaths)
+
+The line graph shows Data for Year 2020-2022(till Jan), it shows Total Deaths (used as Continuous variable) against months data - we can find out comparisons between all the years for every month for total deaths in USA
+
+```{r}
+ggplot(data=usadata, aes(y=Total.Deaths, x = Month, color = Year))+
+geom_point() +scale_x_continuous(name="Months", limits=c(1,12),breaks = 1:12) +geom_line()+ labs(x="Months",y="Total number of COVID-19 Death",title = "Covid-19 Deaths by months in years 2020, 2021, and 2022 in USA.") + theme_minimal()
+```
+
+### Q1(b): Single continous variable -2 (Pneumonia.Deaths)
+
+The smooth plot shows mean spread of pneumonia deaths in USA for year 2020-2021, it shows Total Pneumonia Deaths (used as Continuous variable) against months data
+
+```{r}
+ggplot(data = usadata)+
+geom_smooth(mapping = aes(x = Month, y = Pneumonia.Deaths, color =Year))+
+  scale_x_continuous(name="Months", limits=c(1,12),breaks = 1:12) + labs(x="Months",y="Total number Pneumonia Death",title = "Mean Spread Pneumonia Deaths by months in years 2020 and 2021 in USA.")  
+```
+
+### Q2(a): Single categorial variable - 1 
+The bar chart shows number of data samples collected in each of the group categories - Month, Year and By Week for the data set, it shows Group (used as Categorical variable) against occurrence frequency 
+
+```{r}
+ggplot(data =usaallentries) + geom_bar(aes(x=Group), fill = 'grey') + labs(x="Collection of samples",y="Number of Data samples - Frequency",title = "Number of Data samples collected by Time category")
+```
+
+### Q2(b): Single categorial variable -2
+
+The bar chart shows Data for Year 2020-2022(till Jan) for states in lake district and shows the number of deaths (in thousands) for each states due to Pneumonia.
+
+```{r}
+ggplot(data=usalakes, mapping = aes(y=Pneumonia.Deaths/1000, x= State))+ geom_col(aes(fill = Year))+labs(x = "Lake District States", y="Pneumonia deaths (In Thousands)",title = "Pneumonia deaths in Lake District states of the USA for the last 3 years")
+```
+
+### Q3: Plot for both a continuous variable and a categorical variable
+
+The Bar graph shows Data for Year 2020-2022(till Jan), it shows Total Deaths (Continuous variable) against months data (categorial)  - we can find out comparisons between all the years for every month for Covid deaths in Western USA
+
+```{r}
+ggplot(data=usawest, aes(x=Month, y= Pneumonia..Influenza..or.COVID.19.Deaths)) + geom_col (aes(color = State, fill =State))+
+   scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12)+labs(y="Number of Covid-19 Deaths",title = "Number of Covid-19 deaths by month in Western states of USA")+theme_classic()
+```
+
+### Q4(a) Plot to show a relationship between two variables -1
+
+The data is shown for each  year (2020-2022) for every month showing the percentage of deaths compared to last year (same month) example: Jan 2021 has ~134% of the deaths as compared to Jan year 2020
+
+```{r}
+ggplot(data=usadata) +
+geom_col(aes( y = Percent.of.Expected.Deaths, x = Month, fill=Percent.of.Expected.Deaths))+
+  scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12) +
+  facet_grid (~Year) + labs(y="% of expected Deaths",title = "Percentage of expected deaths for 2020,2021,and 2022 by months across USA")+theme_classic()
+```
+
+### Q4(b) Plot to show a relationship between two variables - 2
+
+This Boxplot shows the percentage of deaths (with average) for western states for each year
+example for year 2021 in California the average %age of deaths is ~118 (means 18% more than last year 2020)
+
+```{r}
+ggplot(data = usawest, aes(x=Year, y = Percent.of.Expected.Deaths)) + 
+  geom_boxplot(aes(color = State)) +
+  scale_y_continuous(name="% of Deaths", limits=c(50,200))+ labs(title="Percentage of deaths in West America by years")+theme_minimal()
+```
+
+
+### Q5 Plot to show a relationship using 4 variables and Facet
+This facet graph shows relation between 4 variable Year, State,month and total deaths.
+This shows the states which are above the safe condition (<5000 deaths per month), the state which exceeds the mark will come out as red
+
+
+```{r}
+ggplot(data = usawest) + geom_point(mapping =aes (x= Month, y = Total.Deaths, color = Total.Deaths <5000)) + facet_grid(State~Year)+ labs(y="Total deaths",title="Number of deaths in states of the USA by months in year 2020,2021,and 2022") + scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12) + theme_gray()
+```
+
+## References to external sources
+
+1. https://r4ds.had.co.nz/index.html
+2. DataCamp
+3. StackOverflow
+4. http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+5. Kaggle Data sets
+6. https://www.r-graph-gallery.com/index.html
+
+## Your answers to the following questions:
+1. In what ways do you think data visualization is important to understanding
+a data set?
+
+Data Visualization transfers information to the user in a fast and effective way. Data is grouped and represented in a concise and trending manner which helps the user to understand the theme of the data. By understanding the theme or flow the user can create a mindset and decide about the wholeness of the data. Getting all this information through a data set is a very difficult task (nearly impossible), just by reading through numbers don't create the flow and whole information one wants to extract from the set of data.
+
+2. In what ways do you think data visualization is important to
+communicating important aspects of a data set?
+
+Data visualization provides a quick and effective way to communicate information in a universal manner using visual information. The practice can also help businesses identify which factors affect customer behavior; pinpoint areas that need to be improved or need more attention. Without a proper data visualization, it is not easy to understand the pattern. Primary goal of data visualization is to communicate information clearly and efficiently via statistical graphics, plots and information graphics. Numerical data may be encoded using dots, lines, or bars, to visually communicate a quantitative message.. There is a lot of possible aspect on data visualization which can be done by storytelling and proper visual representation using appropriate chart or graph.
+
+3. What role does your integrity as an analyst play when creating a data
+visualization for communicating results to others?
+
+A good data visualization plays an important role in conveying the information embedded so, is better to ensure that what's presented accurately and representing understandable visualization in a useful appealing way to end users. Data visualizations need visual integrity to ensure that the data they present can be interpreted correctly.Data analyst should always keep integrity as one of their first and foremost quality and should not hesitate to present the complete data/datasets (even if it shows negative trends). By doing this the user will get the complete picture of the situation and can take correct calls against the data
+
+
+4. How many variables do you think you can successfully represent in a
+visualization? What happens when you exceed this number?
+
+In my view 3-4 variables is a good number for representing a data visualization, as Visualizations are in 2 dimensions putting too many variables will make the result-set more congested and cluttered. Keeping the number to 3-4 variables can give a clean representation of the idea what the presenter wants to communicate, even increasing the number to 5 will create too much noise and overlapping data to represent.
+
+---------------------------------------------------------------------------------
