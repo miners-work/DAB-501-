@@ -1,0 +1,281 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Declaration: 
+The team has worked with honesty and Integrity on the project and take full responsibility of the project work. The work is completed solely by the team members and all 4 members have worked together to complete the work.  
+
+## Team member's names:
+1.	Suhail Riyaz Ahmed :- 789949\n
+2.	Amit Sharma :- 794488\n
+3.	Dhruvalbhai Patel :- 785489\n
+4.	Luis Palacios Melendez :- 802103\n
+
+
+## The versions of R and Rstudio used:
+1. R Version: R version 4.1.2 (2021-11-01), nickname: Bird Hippie\n   
+2. RStudio 2021.09.2+382 "Ghost Orchid" Release for Windows\n
+
+## List of R packages used and their versions:
+1. tidyverse -  tidyverse 1.3.1\n
+2. gridExtra  \n
+
+## Documentation of the data sets:
+1. Owner of the data: National Center for Health Statistics\n
+2. Link: https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-by-Week-Ending-D/r8kw-7aab
+3. Details:
+The above Data set is collection of weekly data in all states in  USA for the number of deaths happened due to COVID -19 , Influenza and Pneumonia. All the deaths are captured in different columns and %age data with corresponding with same month last year is also captured. The purpose of the data is to make trend analysis of the deaths over time (yearly, monthly, weekly) along with data on each state level. Data at state level helps to drill the data to identify the states which should be taken more care in the coming days (as per the numbers). Deaths involving corona virus disease 2019 (COVID-19), pneumonia, and influenza reported to National Center for Health Statistics by week ending date and by state. This Data set delivers the most complete and accurate picture of lives lost to COVID-19. They are based on death certificates, which are the most reliable source of data and contain information not available anywhere else.
+
+## R code and Plots surrounded by well-written explanatory text
+
+IMPORTANT: Pull and load Covid data before u start working on the Plots 
+```{r}
+library(tidyverse)
+library(gridExtra)
+```
+
+### Sampling and having a glimpse at the data set
+```{r}
+glimpse(covid)
+```
+
+### Extracting smaller data sets and creating variables for use in plots
+1. Variable 1 - creating a new Data set usadata - for 3 years and grouped by months
+```{r}
+usadata<-covid %>% filter(State=="United States" & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Month")
+```
+2. Variable 2 - creating a new Data set usawest - for 3 western states for 3 years and grouped by months
+```{r}
+usawest <- covid %>% filter(!is.na(Pneumonia.and.COVID.19.Deaths) & (State=="California" | State=="Oregon" | State=="Washington")  & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Month")
+```
+3. Variable 3 - creating a new Data set usalakes - for states thats are around the Great Lakes this data is grouped by year
+```{r}
+usalakes <- covid %>% filter(!is.na(Influenza.Deaths) & (State=="Illinois" | State=="Wisconsin" | State=="Indiana"| State=="New York"| State=="Ohio"| State=="Michigan"| State=="Pennsylvania")  & (Year ==2020 | Year == 2021 | Year ==2022) & Group == "By Month")
+```
+4. Variable 4 - grouping the USA data just omitting the summation at the end
+```{r}
+usaallentries <- covid %>% filter( (Year ==2020 | Year == 2021 | Year ==2022) & Group != "By Total")
+```
+5.Variable 5
+```{r}
+usadata2020<-covid %>% filter(!is.na(Pneumonia.Deaths) & State=="United States" & (Year ==2020) & Group == "By Month")
+```
+6.Variable 6
+```{r}
+usawest2020_21<- covid %>% filter(!is.na(Pneumonia.and.COVID.19.Deaths) & (State=="California" | State=="Oregon" | State=="Washington")  & (Year ==2020 |Year==2021 ) & Group == "By Month")
+```
+--------------------------------------------------------------------------------------------------------------------------------------------------
+##For each numeric variable:
+1. Create an appropriate plot to visualize the distribution of this variable.
+```{r}
+median_total_death<-median(usawest$Total.Deaths)
+median_total_death
+
+mean_total_death<-mean(usawest$Total.Deaths)
+mean_total_death
+
+ggplot(usawest,aes(Total.Deaths ))+geom_histogram(fill='sky blue',color="black",binwidth = 4500)+geom_vline(xintercept =mean_total_death ,color="red",size=0.8)+geom_vline(xintercept =median_total_death ,color="blue",size=0.8)
+```
+2. Consider any outliers present in the data. If present, specify the criteria used to identify
+them and provide a logical explanation for how you handled them.
+Ans. There are few outliers towards the right side of the graph, which can be easily identified. 
+
+3. Describe the shape and skewness of the distribution.
+Ans.Right skewed
+
+4. Based on your answer to the previous question, decide if it is appropriate to apply a
+transformation to your data. If no, explain why not. If yes, name the transformation applied
+and visualize the transformed distribution.
+Ans.
+
+5. Choose and calculate an appropriate measure of central tendency.
+
+```{r}
+usawest %>% summarise(mean_total_death=mean(Total.Deaths),sd_total.death=sd(Total.Deaths))
+```
+
+Ans. As we choose mean we went with standard deviation 
+
+
+6. Explain why you chose this as your measure of central tendency. Provide supporting
+evidence for your choice.
+Ans.
+
+7. Choose and calculate a measure of spread that is appropriate for your chosen measure
+of central tendency. Explain why you chose this as your measure of spread.
+Ans
+```{r}
+usawest %>% summarise(IQR_totaldeath=IQR(Total.Deaths))
+```
+As the data is skewed we have decided to take IQR.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1.Create an appropriate plot to visualize the distribution of this variable.
+```{r}
+avg_Pneumonia.Deaths<-mean(usawest$Pneumonia.Deaths)
+```
+```{r}
+median_Pneumonia.Deaths<-median(usawest$Pneumonia.Deaths)
+```
+```{r}
+ggplot(usawest, aes(Pneumonia.Deaths))+
+
+geom_histogram(fill="skyblue",color="black",binwidth = 500)+geom_vline(xintercept =avg_Pneumonia.Deaths ,color="red",size=0.8)+geom_vline(xintercept =median_Pneumonia.Deaths ,color="blue",size=0.8)
+
+```
+2. Consider any outliers present in the data. If present, specify the criteria used to identify
+themand provide a logical explanation for how you handled them.
+
+3. Describe the shape and skewness of the distribution.
+
+4. Based on your answer to the previous question, decide if it is appropriate to apply a
+transformation to your data. If no, explain why not. If yes, name the transformation applied
+and visualize the transformed distribution.
+
+5. Choose and calculate an appropriate measure of central tendency.
+
+6. Explain why you chose this as your measure of central tendency. Provide supporting
+evidence for your choice.
+
+7. Choose and calculate a measure of spread that is appropriate for your chosen measure
+of central tendency. Explain why you chose this as your measure of spread.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. Create an appropriate plot to visualize the distribution of this variable.
+```{r}
+ggplot(usalakes,aes(y=Influenza.Deaths,x=Month))+geom_point(shape=21,alpha=1/3)+ scale_x_continuous(name="Months", limits=c(1,12),breaks = 1:12)+geom_smooth()+facet_wrap(~State)
+```
+2. Consider any outliers present in the data. If present, specify the criteria used to identify
+themand provide a logical explanation for how you handled them.
+
+3. Describe the shape and skewness of the distribution.
+
+4. Based on your answer to the previous question, decide if it is appropriate to apply a
+transformation to your data. If no, explain why not. If yes, name the transformation applied
+and visualize the transformed distribution. 
+
+5. Choose and calculate an appropriate measure of central tendency.
+
+6. Explain why you chose this as your measure of central tendency. Provide supporting
+evidence for your choice.
+
+7. Choose and calculate a measure of spread that is appropriate for your chosen measure
+of central tendency. Explain why you chose this as your measure of spread.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. Create an appropriate plot to visualize the distribution of this variable.
+```{r}
+avg_Pneumonia.and.COVID.19.Deaths<-mean(usawest$Pneumonia.and.COVID.19.Deaths)
+```
+
+```{r}
+medain_Pneumonia.and.COVID.19.Deaths<- median(usawest$Pneumonia.and.COVID.19.Deaths )
+```
+
+```{r}
+ggplot(usawest,aes(Pneumonia.and.COVID.19.Deaths ))+geom_histogram(fill='sky blue',color="black",binwidth = 700)+geom_vline(xintercept =avg_Pneumonia.and.COVID.19.Deaths ,color="red",size=0.8)+geom_vline(xintercept =medain_Pneumonia.and.COVID.19.Deaths ,color="blue",size=0.8)
+
+```
+2. Consider any outliers present in the data. If present, specify the criteria used to identify
+themand provide a logical explanation for how you handled them. 
+Ans
+3. Describe the shape and skewness of the distribution.
+
+4. Based on your answer to the previous question, decide if it is appropriate to apply a
+transformation to your data. If no, explain why not. If yes, name the transformation applied
+and visualize the transformed distribution.
+
+5. Choose and calculate an appropriate measure of central tendency.
+
+6. Explain why you chose this as your measure of central tendency. Provide supporting
+evidence for your choice.
+
+7. Choose and calculate a measure of spread that is appropriate for your chosen measure
+of central tendency. Explain why you chose this as your measure of spread.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+##Categorical Variable
+
+Create an appropriate plot to visualize the distribution of counts for this variable
+
+```{r}
+ggplot(data=usawest2020_21, aes(x=Month, y= Pneumonia..Influenza..or.COVID.19.Deaths , color=State)) + geom_point ()+geom_smooth()+
+   scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12)+facet_wrap(~Year)
+```
+```{r}
+ggplot(usawest2020_21,aes(Month),stat = 'count' )+geom_histogram(fill='sky blue',color="black")+ scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12)
+```
+
+2. Create an appropriate plot to visualize the distribution of proportions for this variable.
+Ans.
+```{r}
+ggplot(usawest2020_21,aes(x = Month, y = ..prop.., group =1),stat = 'count' )+geom_bar(fill ='pink', color ='black')+theme_dark()+scale_x_continuous(name="Months", limits=c(0,13),breaks = 1:12)
+```
+
+```{r}
+count(usawest2020_21,Month)
+
+usawest2020_21%>% group_by(Month) %>% 
+  summarize(n=n()) %>%
+  mutate(prop=n/sum(n))
+```
+
+3. Discuss any unusual observations for this variable? 
+Ans.
+##In the first graph for the year 2020 the value for the variable increases in the last few months with 12th month of 2020 with the highest deaths, whereas in 2021 graph the number of deaths is higher during the first few months with 1st month having highest number of deaths.
+
+4. Discuss if there are too few/too many unique values? 
+Ans. There are too many unique values as this data represents the number of Deaths caused by Pneumonia,Influenza or COVID 19, There is a slight possibility of having the same data of deaths for each month.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+1.Create an appropriate plot to visualize the distribution of counts for this variable
+```{r}
+ggplot(usaallentries,aes(x = Group, y = ..count.., group =1) )+geom_bar()
+```
+
+
+2.Create an appropriate plot to visualize the distribution of proportions for this variable
+
+```{r}
+ggplot(usaallentries,aes(x = Group, y = ..prop.., group =1),stat = 'count' )+
+
+ geom_bar(fill ='sky blue', color ='black')+theme_dark()
+```
+3. Discuss any unusual observations for this variable? 
+
+4. Discuss if there are too few/too many unique values? 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1.Create an appropriate plot to visualize the distribution of counts for this variable
+```{r}
+ggplot(usalakes,aes(State))+geom_histogram(fill="skyblue",color="black",binwidth = 500,stat='count')
+```
+
+2.Create an appropriate plot to visualize the distribution of proportions for this variable
+```{r}
+
+ggplot(usalakes,aes(x = State, y = ..prop.., group =1),stat = 'count' )+
+
+ geom_bar(fill ='pink', color ='black')+theme_dark()
+```
+```{r}
+count(usalakes,State)
+
+usalakes%>% group_by(State) %>% 
+  summarize(n=n()) %>%
+  mutate(prop=n/sum(n))
+```
+
+
+3. Discuss any unusual observations for this variable? 
+
+4. Discuss if there are too few/too many unique values? 
+----------------------------------------------------------
+
+
